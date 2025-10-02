@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+    app:
+        build:
+            context: .
+            dockerfile: docker/php/8.2/Dockerfile
+        volumes:
+            - ./storage:/var/www/html/storage
+            - ./public:/var/www/html/public
+        ports:
+            - "85:85"
+        container_name: app
+        env_file:
+            - .env
+        environment:
+            APP_ENV: local
+            APP_DEBUG: 'true'
+            APP_URL: http://localhost:85
+
+            DB_CONNECTION: pgsql
+            DB_HOST: postgres
+            DB_PORT: '5432'
+            DB_DATABASE: postgres
+            DB_USERNAME: admin
+            POSTGRES_PASSWORD: ${DB_PASSWORD}
+
+            L5_SWAGGER_BASE_PATH: http://localhost:85/api
+            L5_SWAGGER_CONST_HOST: http://localhost:85
+
+        depends_on:
+            - postgres
+
+    postgres:
+        image: postgres:14
+        environment:
+            POSTGRES_DB: postgres
+            POSTGRES_USER: admin
+            POSTGRES_PASSWORD: ${DB_PASSWORD}
+        ports:
+            - "5433:5432"
+        container_name: postgres
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+
+volumes:
+    postgres_data:
