@@ -9,12 +9,12 @@ use App\Http\Requests\IndexByRadiusRequest;
 use App\Http\Requests\IndexByRectangleRequest;
 use App\Http\Requests\SearchByActivityRequest;
 use App\Http\Requests\SearchByNameRequest;
+use App\Http\Resources\OrganizationPaginatedCollection;
 use App\Http\Resources\OrganizationResource;
 use App\Models\Activity;
 use App\Models\Building;
 use App\Models\Organization;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Pagination\LengthAwarePaginator;
 use OpenApi\Attributes as OA;
 
 #[OA\Info(
@@ -111,7 +111,7 @@ class OrganizationController extends Controller
             ->orderBy('name')
             ->paginate($perPage);
 
-        return $this->formatPaginatedResponse($organizations);
+        return (new OrganizationPaginatedCollection($organizations))->toJsonResponse();
     }
 
     #[OA\Get(
@@ -165,7 +165,7 @@ class OrganizationController extends Controller
             ->orderBy('name')
             ->paginate($perPage);
 
-        return $this->formatPaginatedResponse($organizations);
+        return (new OrganizationPaginatedCollection($organizations))->toJsonResponse();
     }
 
     #[OA\Get(
@@ -251,7 +251,7 @@ class OrganizationController extends Controller
 
         \Log::info("Найдено организаций: " . $organizations->count());
 
-        return $this->formatPaginatedResponse($organizations);
+        return (new OrganizationPaginatedCollection($organizations))->toJsonResponse();
     }
 
     #[OA\Get(
@@ -326,7 +326,7 @@ class OrganizationController extends Controller
             ->orderBy('distance')
             ->paginate($perPage);
 
-        return $this->formatPaginatedResponse($organizations);
+        return (new OrganizationPaginatedCollection($organizations))->toJsonResponse();
     }
 
     #[OA\Get(
@@ -427,7 +427,7 @@ class OrganizationController extends Controller
             ->orderBy('name')
             ->paginate($perPage);
 
-        return $this->formatPaginatedResponse($organizations);
+        return (new OrganizationPaginatedCollection($organizations))->toJsonResponse();
     }
 
     #[OA\Get(
@@ -487,19 +487,6 @@ class OrganizationController extends Controller
             ->orderBy('name')
             ->paginate($perPage);
 
-        return $this->formatPaginatedResponse($organizations);
-    }
-
-    private function formatPaginatedResponse(LengthAwarePaginator $paginator): JsonResponse
-    {
-        return response()->json([
-            'data' => OrganizationResource::collection($paginator->items()),
-            'meta' => [
-                'current_page' => $paginator->currentPage(),
-                'per_page' => $paginator->perPage(),
-                'total' => $paginator->total(),
-                'last_page' => $paginator->lastPage(),
-            ],
-        ]);
+        return (new OrganizationPaginatedCollection($organizations))->toJsonResponse();
     }
 }
